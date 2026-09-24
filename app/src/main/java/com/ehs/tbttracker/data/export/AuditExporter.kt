@@ -27,28 +27,7 @@ class AuditExporter @Inject constructor(@ApplicationContext private val context:
 
     fun exportExcel(r: ContractorMonthReport): File {
         val file = File(dir, baseName(r) + ".xlsx")
-        val summary = listOf(
-            listOf("TBT Safety Compliance Portal - Contractor Wise Audit", null),
-            listOf("Contractor", r.contractor),
-            listOf("Month", r.month.format(monthFmt)),
-            listOf("TBT done (days)", r.doneDays.size),
-            listOf("Sessions", r.sessions),
-            listOf("Days not done", r.notDoneDays.size),
-            listOf("Days in month", r.daysInMonth),
-            listOf("Compliance rate (%)", r.complianceRate),
-            listOf("Total manpower trained", r.manpower),
-            listOf("Avg workers per conducted day", "%.1f".format(Locale.US, r.avgWorkersPerDay)),
-        )
-        val daily = listOf(listOf("Day", "Date", "Weekday", "Status", "Sessions", "Manpower", "Location", "Photo")) +
-            r.days.map { d ->
-                listOf(
-                    d.date.dayOfMonth, d.date.toString(), d.date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
-                    when { d.done -> "TBT Done"; d.upcoming -> "Upcoming"; else -> "No TBT Done" },
-                    d.records.size, if (d.done) d.manpower else null, d.locations,
-                    d.records.mapNotNull { rec -> (rec.photo as? com.ehs.tbttracker.domain.model.PhotoRef.Drive)?.originalUrl }.joinToString(" "),
-                )
-            }
-        file.outputStream().use { XlsxWriter.write(it, listOf(XlsxWriter.Sheet("Summary", summary), XlsxWriter.Sheet("Daily audit", daily))) }
+        file.outputStream().use { XlsxWriter.write(it, AuditReportContent.excelSheets(r)) }
         return file
     }
 
@@ -72,9 +51,10 @@ class AuditExporter @Inject constructor(@ApplicationContext private val context:
 
         line("TBT Safety Compliance Portal", title, dy = 20f)
         line("Contractor Wise TBT Details & Audit Sheet", bold)
-        line("${r.contractor}  |  ${r.month.format(monthFmt)}", body, dy = 22f)
-        line("TBT done: ${r.doneDays.size} days (${r.sessions} sessions)    Not done: ${r.notDoneDays.size} of ${r.daysInMonth} days", body)
-        line("Compliance rate: ${r.complianceRate}%    Manpower trained: ${r.manpower} workers (avg %.1f per conducted day)".format(Locale.US, r.avgWorkersPerDay), body, dy = 24f)
+        val summary = AuditReportContent.pdfSummary(r)
+        line(summary[0], body, dy = 22f)
+        line(summary[1], body)
+        line(summary[2], body, dy = 24f)
 
         val cols = floatArrayOf(margin, margin + 34, margin + 120, margin + 165, margin + 245, margin + 305)
         fun header() {
@@ -88,7 +68,7 @@ class AuditExporter @Inject constructor(@ApplicationContext private val context:
             val c = page.canvas
             c.drawText(d.date.dayOfMonth.toString(), cols[0], y, body)
             c.drawText(d.date.toString(), cols[1], y, body)
-            c.drawText(d.date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH), cols[2], y, body)
+            c.drawText(AuditReportContent.weekday(d), cols[2], y, body)
             when {
                 d.done -> c.drawText("TBT Done", cols[3], y, green)
                 d.upcoming -> c.drawText("Upcoming", cols[3], y, grey)

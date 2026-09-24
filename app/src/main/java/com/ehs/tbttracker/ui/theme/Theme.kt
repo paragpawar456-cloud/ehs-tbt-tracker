@@ -48,6 +48,9 @@ val DarkPalette = EhsPalette(
 
 val LocalEhsPalette = staticCompositionLocalOf { LightPalette }
 
+/** Whether the app theme is dark (follows the system unless a caller forces it). */
+val LocalDarkTheme = staticCompositionLocalOf { false }
+
 /** Shortcut: `Ehs.colors.accent`. */
 object Ehs {
     val colors: EhsPalette @Composable get() = LocalEhsPalette.current
@@ -104,7 +107,7 @@ private val EhsShapes = Shapes(
 @Composable
 fun EhsTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val palette = if (darkTheme) DarkPalette else LightPalette
-    androidx.compose.runtime.CompositionLocalProvider(LocalEhsPalette provides palette) {
+    androidx.compose.runtime.CompositionLocalProvider(LocalEhsPalette provides palette, LocalDarkTheme provides darkTheme) {
         MaterialTheme(colorScheme = scheme(palette, darkTheme), typography = EhsTypography, shapes = EhsShapes, content = content)
     }
 }

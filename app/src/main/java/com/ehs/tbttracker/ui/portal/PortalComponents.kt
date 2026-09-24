@@ -93,7 +93,7 @@ private val DarkPortal = PortalPalette(
 )
 
 object Portal {
-    val colors: PortalPalette @Composable get() = if (isSystemInDarkTheme()) DarkPortal else LightPortal
+    val colors: PortalPalette @Composable get() = if (com.ehs.tbttracker.ui.theme.LocalDarkTheme.current) DarkPortal else LightPortal
     val monthFmt: DateTimeFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH)
     val monthShort: DateTimeFormatter = DateTimeFormatter.ofPattern("MMMM", Locale.ENGLISH)
     val dayFmt: DateTimeFormatter = DateTimeFormatter.ofPattern("EEE", Locale.ENGLISH)

@@ -94,7 +94,7 @@ private val DarkChart = ChartColors(
 val LocalChartAnimations = androidx.compose.runtime.staticCompositionLocalOf { true }
 
 object ChartTheme {
-    val colors: ChartColors @Composable get() = if (isSystemInDarkTheme()) DarkChart else LightChart
+    val colors: ChartColors @Composable get() = if (com.ehs.tbttracker.ui.theme.LocalDarkTheme.current) DarkChart else LightChart
 }
 
 /** Card chrome shared by every chart: title, subtitle, content. */

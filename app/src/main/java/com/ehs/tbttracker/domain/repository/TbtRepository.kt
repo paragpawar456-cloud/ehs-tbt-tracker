@@ -8,6 +8,9 @@ interface TbtRepository {
     /** Local cache (Room) is the single source of truth; contractor names already canonicalised. */
     fun observeRecords(): Flow<List<TbtRecord>>
 
+    /** Registered contractor names from the sheet's "Master Contractors" tab (may be empty). */
+    fun observeMasterContractors(): Flow<List<String>>
+
     /** Pulls the whole sheet and reconciles it with the cache. Returns number of rows fetched. */
     suspend fun refresh(): Result<Int>
 

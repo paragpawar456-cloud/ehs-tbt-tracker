@@ -157,6 +157,19 @@ fun DashboardScreen(state: DashboardUiState, actions: DashboardActions) {
     }
 }
 
+/** The analytics panels without the top bar, for the portal's Analytics tab. */
+@Composable
+fun AnalyticsContent(state: DashboardUiState, actions: DashboardActions) {
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        if (state.syncError != null && state.isOnline) SyncErrorBanner(state.syncError)
+        TodayHeader(state.stats.today)
+        KpiRow(state)
+        TrendPanel(state.stats.trend)
+        NotReportedPanel(state)
+        CoveragePanel(state, actions)
+    }
+}
+
 // ---------------------------------------------------------------- top bar
 
 @Composable

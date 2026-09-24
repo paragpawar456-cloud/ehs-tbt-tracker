@@ -14,13 +14,18 @@ const sheet = {
   }),
   appendRow: row => grid.push(row.map(x => x)),
 };
+// Master list tab.
+const masterGrid = [["Contractor Name"], ["AMI Plumbing"], ["Shiv Krupa Construction Pvt Ltd"], ["ami plumbing"], [""]];
+const masterTab = { getSheetId: () => 7, getName: () => "Master Contractors", getType: () => 'GRID', getFormUrl: () => null,
+  getLastRow: () => masterGrid.length, getLastColumn: () => 1,
+  getRange: (r, c, nr = 1, nc = 1) => ({ getDisplayValues: () => masterGrid.slice(r - 1, r - 1 + nr).map(row => row.slice(c - 1, c - 1 + nc)) }) };
 // Chart tab (the gid in the shared link) must be skipped.
 const chartTab = { getSheetId: () => 1314221799, getType: () => 'OBJECT', getLastRow: () => { throw new Error('The action is not supported for OBJECT sheet.'); } };
 const props = { API_TOKEN: "s3cret", PHOTO_FOLDER_ID: "folder" };
 let created = [];
 const ctx = {
   console, Date, JSON, Math, Number, String, Error, isNaN,
-  SpreadsheetApp: { openById: () => ({ getSheets: () => [chartTab, sheet] }), flush: () => {}, SheetType: { GRID: 'GRID', OBJECT: 'OBJECT' } },
+  SpreadsheetApp: { openById: () => ({ getSheets: () => [chartTab, masterTab, sheet] }), flush: () => {}, SheetType: { GRID: 'GRID', OBJECT: 'OBJECT' } },
   PropertiesService: { getScriptProperties: () => ({ getProperty: k => props[k], setProperty: (k, v) => props[k] = v }) },
   LockService: { getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }) },
   Utilities: { base64Decode: s => Buffer.from(s, 'base64'), newBlob: (b, m, n) => ({ b, m, n }), base64Encode: b => Buffer.from(b).toString('base64') },
@@ -37,6 +42,7 @@ const assert = (c, m) => { if (!c) { console.log("FAIL", m); process.exitCode = 
 assert(get({ token: "bad" }).code === 401, "rejects bad token");
 const l = get({ token: "s3cret" });
 assert(props.DATA_SHEET_ID === "42", "picks the data tab, skips the chart tab");
+assert(JSON.stringify(l.masters) === JSON.stringify(["AMI Plumbing", "Shiv Krupa Construction Pvt Ltd"]), "reads master contractors tab (deduped)");
 assert(l.ok && l.rows.length === 1 && l.rows[0].manpower === "09" && l.rows[0].row === 2, "lists display values with row numbers");
 const body = { action: "create", token: "s3cret", clientRef: "uuid-1", date: "2026-09-24", contractor: "Stellar", manpower: 4,
   location: "B1. 8 Floor", notes: "PPE ok", photoBase64: Buffer.from("jpegbytes").toString('base64'), photoMime: "image/jpeg", photoName: "a b.jpg" };

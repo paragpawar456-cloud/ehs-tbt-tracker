@@ -4,6 +4,7 @@ import com.ehs.tbttracker.data.local.TbtDao
 import com.ehs.tbttracker.data.local.TbtEntity
 import com.ehs.tbttracker.data.local.toDomain
 import com.ehs.tbttracker.data.photo.PhotoStorage
+import com.ehs.tbttracker.data.local.MasterContractorStore
 import com.ehs.tbttracker.data.remote.BackendConfig
 import com.ehs.tbttracker.data.remote.BackendException
 import com.ehs.tbttracker.data.remote.CreateRequest
@@ -40,6 +41,7 @@ class TbtRepositoryImpl @Inject constructor(
     private val api: SheetsWebAppApi,
     private val config: BackendConfig,
     private val photoStorage: PhotoStorage,
+    private val masterStore: MasterContractorStore,
     private val syncScheduler: SyncScheduler,
     private val clock: Clock,
     @IoDispatcher private val io: CoroutineDispatcher,
@@ -55,6 +57,8 @@ class TbtRepositoryImpl @Inject constructor(
         }
         .flowOn(io)
 
+    override fun observeMasterContractors(): Flow<List<String>> = masterStore.names
+
     override suspend fun refresh(): Result<Int> = withContext(io) {
         runCatchingNonCancel {
             check(config.isConfigured) { "Backend not configured. Set EHS_WEB_APP_URL and EHS_API_TOKEN." }
@@ -63,6 +67,7 @@ class TbtRepositoryImpl @Inject constructor(
             val existing = dao.getByIds(response.rows.map(SheetRowMapper::stableId)).associateBy { it.id }
             val entities = response.rows.map { SheetRowMapper.toEntity(it, existing[SheetRowMapper.stableId(it)]) }
             dao.reconcileWithRemote(entities)
+            masterStore.save(response.masters)
             // Anything captured offline gets another chance now that we know the network works.
             syncScheduler.scheduleSync()
             entities.size

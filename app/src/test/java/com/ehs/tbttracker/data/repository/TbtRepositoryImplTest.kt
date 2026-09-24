@@ -33,9 +33,10 @@ class TbtRepositoryImplTest {
     private val api = mockk<SheetsWebAppApi>()
     private val photos = mockk<PhotoStorage>()
     private val scheduler = mockk<SyncScheduler>(relaxed = true)
+    private val masters = mockk<com.ehs.tbttracker.data.local.MasterContractorStore>(relaxed = true)
     private val config = BackendConfig("https://script.google.com/macros/s/abc/exec", "secret")
 
-    private val repo = TbtRepositoryImpl(dao, api, config, photos, scheduler, Fixtures.CLOCK, dispatcher)
+    private val repo = TbtRepositoryImpl(dao, api, config, photos, masters, scheduler, Fixtures.CLOCK, dispatcher)
 
     private fun pending(id: String) = TbtEntity(
         id = id, timestampIso = "2026-09-24T09:00", dateIso = "2026-09-24", contractorName = "Ami plumbing",
@@ -67,6 +68,7 @@ class TbtRepositoryImplTest {
         assertThat(result.getOrNull()).isEqualTo(94)
         assertThat(captured.captured).hasSize(94)
         verify { scheduler.scheduleSync() }
+        verify { masters.save(emptyList()) }
     }
 
     @Test
@@ -153,7 +155,7 @@ class TbtRepositoryImplTest {
 
     @Test
     fun `unconfigured backend never calls the network`() = runTest(dispatcher) {
-        val unconfigured = TbtRepositoryImpl(dao, api, BackendConfig("https://script.google.com/macros/s/REPLACE_WITH_DEPLOYMENT_ID/exec", "x"), photos, scheduler, Fixtures.CLOCK, dispatcher)
+        val unconfigured = TbtRepositoryImpl(dao, api, BackendConfig("https://script.google.com/macros/s/REPLACE_WITH_DEPLOYMENT_ID/exec", "x"), photos, masters, scheduler, Fixtures.CLOCK, dispatcher)
         coEvery { dao.getPending() } returns listOf(pending("1"))
         assertThat(unconfigured.syncPending().failedRetryable).isEqualTo(1)
         assertThat(unconfigured.refresh().isFailure).isTrue()

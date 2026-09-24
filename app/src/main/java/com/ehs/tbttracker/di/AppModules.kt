@@ -6,6 +6,8 @@ import androidx.work.WorkManager
 import com.ehs.tbttracker.BuildConfig
 import com.ehs.tbttracker.data.local.TbtDao
 import com.ehs.tbttracker.data.local.TbtDatabase
+import com.ehs.tbttracker.data.local.MasterContractorStore
+import com.ehs.tbttracker.data.local.PrefsMasterContractorStore
 import com.ehs.tbttracker.data.network.NetworkConnectivityObserver
 import com.ehs.tbttracker.data.photo.FilePhotoStorage
 import com.ehs.tbttracker.data.photo.FusedLocationProvider
@@ -116,4 +118,5 @@ abstract class BindingsModule {
     @Binds @Singleton abstract fun connectivity(impl: NetworkConnectivityObserver): ConnectivityObserver
     @Binds @Singleton abstract fun photoStorage(impl: FilePhotoStorage): PhotoStorage
     @Binds @Singleton abstract fun locationProvider(impl: FusedLocationProvider): LocationProvider
+    @Binds @Singleton abstract fun masterStore(impl: PrefsMasterContractorStore): MasterContractorStore
 }

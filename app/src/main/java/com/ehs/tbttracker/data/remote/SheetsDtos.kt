@@ -23,6 +23,8 @@ data class ListResponse(
     val error: String? = null,
     val serverTime: String? = null,
     val rows: List<SheetRowDto> = emptyList(),
+    /** Names from the optional "Master Contractors" tab. */
+    val masters: List<String> = emptyList(),
 )
 
 @Serializable

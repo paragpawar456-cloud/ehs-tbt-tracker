@@ -29,19 +29,35 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.ehs.tbttracker.ui.dashboard.DashboardRoute
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.ehs.tbttracker.ui.form.TbtFormViewModel
+import com.ehs.tbttracker.ui.portal.PortalNav
+import com.ehs.tbttracker.ui.portal.PortalRoute
 import com.ehs.tbttracker.ui.form.TbtFormRoute
 import com.ehs.tbttracker.ui.theme.Ehs
+import com.ehs.tbttracker.ui.portal.Portal
+import com.ehs.tbttracker.R
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 
 object Routes {
-    const val DASHBOARD = "dashboard"
-    const val NEW_TBT = "new_tbt"
+    const val DASHBOARD = "portal"
+    const val NEW_TBT = "new_tbt?date={date}&contractor={contractor}"
+
+    fun newTbt(date: java.time.LocalDate? = null, contractor: String? = null): String =
+        "new_tbt?date=${date ?: ""}&contractor=${android.net.Uri.encode(contractor ?: "")}"
 }
 
 /**
- * Single-page dashboard (KPIs, trend, not-reported, coverage, log) with "+ New TBT" opening the form,
- * mirroring the TBT Site Tracker web layout.
+ * "TBT Safety Compliance Portal": tabbed portal (contractor-wise audit, date-wise, missing audit,
+ * monthly grid, analytics, master contractors, all records) with "Record New TBT" opening the form.
  */
 @Composable
 fun TbtApp() {
@@ -52,14 +68,26 @@ fun TbtApp() {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar, Modifier.navigationBarsPadding()) },
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        containerColor = Ehs.colors.bg,
+        containerColor = Portal.colors.bg,
     ) { padding ->
         NavHost(nav, startDestination = Routes.DASHBOARD, modifier = Modifier.padding(padding)) {
             composable(Routes.DASHBOARD) {
-                DashboardRoute(snackbar, onNewTbt = { nav.navigate(Routes.NEW_TBT) { launchSingleTop = true } })
+                PortalRoute(
+                    snackbar,
+                    PortalNav(
+                        onRecordNew = { nav.navigate(Routes.newTbt()) { launchSingleTop = true } },
+                        onLogTbt = { date, contractor -> nav.navigate(Routes.newTbt(date, contractor)) { launchSingleTop = true } },
+                    ),
+                )
             }
-            composable(Routes.NEW_TBT) {
-                Column(Modifier.fillMaxSize().background(Ehs.colors.bg)) {
+            composable(
+                Routes.NEW_TBT,
+                arguments = listOf(
+                    navArgument(TbtFormViewModel.ARG_DATE) { type = NavType.StringType; nullable = true; defaultValue = null },
+                    navArgument(TbtFormViewModel.ARG_CONTRACTOR) { type = NavType.StringType; nullable = true; defaultValue = null },
+                ),
+            ) {
+                Column(Modifier.fillMaxSize().background(Portal.colors.bg)) {
                     FormTopBar(onBack = { nav.popBackStack() })
                     Box(Modifier.weight(1f).navigationBarsPadding()) {
                         TbtFormRoute(
@@ -78,15 +106,17 @@ fun TbtApp() {
 
 @Composable
 private fun FormTopBar(onBack: () -> Unit) {
-    val c = Ehs.colors
+    val c = Portal.colors
     Row(
-        Modifier.fillMaxWidth().background(c.navy).statusBarsPadding().padding(horizontal = 4.dp, vertical = 6.dp).testTag("form_top_bar"),
+        Modifier.fillMaxWidth().background(c.surface).statusBarsPadding().padding(horizontal = 4.dp, vertical = 8.dp).testTag("form_top_bar"),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back to dashboard", tint = c.onNavy) }
+        IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back to portal", tint = c.ink) }
+        Image(painterResource(R.drawable.ic_tbt_logo), null, Modifier.size(36.dp))
+        Spacer(Modifier.width(10.dp))
         Column {
-            Text("New TBT", style = MaterialTheme.typography.titleLarge, color = c.onNavy)
-            Text("Contractor Daily Tbt details", style = MaterialTheme.typography.labelMedium, color = c.onNavy.copy(alpha = 0.8f))
+            Text("Record New TBT", color = c.ink, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
+            Text("Saved to Form Responses 1", color = c.muted, fontSize = 12.sp)
         }
     }
 }

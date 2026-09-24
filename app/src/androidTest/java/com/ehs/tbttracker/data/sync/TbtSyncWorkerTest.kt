@@ -30,6 +30,7 @@ class FakeRepository(vararg reports: SyncReport) : TbtRepository {
     private val queue = ArrayDeque(reports.toList())
     var syncCalls = 0
     override fun observeRecords(): Flow<List<TbtRecord>> = emptyFlow()
+    override fun observeMasterContractors(): Flow<List<String>> = emptyFlow()
     override suspend fun refresh() = Result.success(0)
     override suspend fun submit(draft: TbtDraft): TbtRecord = error("unused")
     override suspend fun retryFailed() = Unit

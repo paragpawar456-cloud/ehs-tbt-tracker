@@ -6,7 +6,8 @@
  *   F Tool box photo | G Photo (used as Status / Photo Notes) | H Client Ref (added by this script)
  *
  * Endpoints (all JSON, all require ?token= / body.token == Script Property API_TOKEN):
- *   GET  ?action=list[&since=ISO]        -> { ok, serverTime, rows:[...] }
+ *   GET  ?action=list[&since=ISO]        -> { ok, serverTime, rows:[...], masters:[...] }
+ *        masters = names from an optional tab whose name contains "Master" (first column, below its header)
  *   GET  ?action=thumb&id=FILE_ID[&size=800] -> { ok, mime, data(base64) }  (private Drive photos)
  *   GET  ?action=health                  -> { ok, sheet, rows }
  *   POST { action:"create", clientRef, date, contractor, manpower, location, notes,
@@ -63,7 +64,7 @@ function doPost(e) {
 function listRows_(since) {
   var sheet = getSheet_();
   var lastRow = sheet.getLastRow();
-  if (lastRow < 2) return { serverTime: new Date().toISOString(), rows: [] };
+  if (lastRow < 2) return { serverTime: new Date().toISOString(), rows: [], masters: readMasters_() };
   var width = Math.max(sheet.getLastColumn(), COL.NOTES);
   // Display values keep what humans typed ("10 Labour", "9/14/2026"); the app sanitises them.
   var values = sheet.getRange(2, 1, lastRow - 1, width).getDisplayValues();
@@ -88,7 +89,33 @@ function listRows_(since) {
       clientRef: width >= COL.CLIENT_REF ? v[COL.CLIENT_REF - 1] : ''
     });
   }
-  return { serverTime: new Date().toISOString(), rows: rows };
+  return { serverTime: new Date().toISOString(), rows: rows, masters: readMasters_() };
+}
+
+/** Contractor names from a "Master Contractors" tab (any tab whose name contains "master"). */
+function readMasters_() {
+  try {
+    var sheets = SpreadsheetApp.openById(SPREADSHEET_ID).getSheets();
+    for (var i = 0; i < sheets.length; i++) {
+      var sh = sheets[i];
+      if (sh.getType && sh.getType() !== SpreadsheetApp.SheetType.GRID) continue;
+      if (!/master/i.test(sh.getName()) || sh.getLastRow() < 2) continue;
+      var width = Math.max(1, Math.min(sh.getLastColumn(), 10));
+      var header = sh.getRange(1, 1, 1, width).getDisplayValues()[0];
+      var col = 0;
+      for (var c = 0; c < header.length; c++) {
+        if (/contractor|agency|name/i.test(header[c])) { col = c; break; }
+      }
+      var values = sh.getRange(2, col + 1, sh.getLastRow() - 1, 1).getDisplayValues();
+      var seen = {}, out = [];
+      values.forEach(function (r) {
+        var n = String(r[0] || '').trim();
+        if (n && !seen[n.toLowerCase()]) { seen[n.toLowerCase()] = true; out.push(n); }
+      });
+      return out;
+    }
+  } catch (e) { console.error(e); }
+  return [];
 }
 
 function createRow_(b) {

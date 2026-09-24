@@ -1,5 +1,6 @@
 package com.ehs.tbttracker.ui.form
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ehs.tbttracker.data.photo.PhotoProcessor
@@ -60,9 +61,16 @@ class TbtFormViewModel @Inject constructor(
     private val submitTbt: SubmitTbtUseCase,
     private val photoProcessor: PhotoProcessor,
     private val clock: Clock,
+    savedStateHandle: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(TbtFormState(date = LocalDate.now(clock)))
+    /** "+ Log TBT" on a missed day opens the form with that date and contractor filled in. */
+    private val _state = MutableStateFlow(
+        TbtFormState(
+            date = savedStateHandle.get<String>(ARG_DATE)?.let { runCatching { LocalDate.parse(it) }.getOrNull() } ?: LocalDate.now(clock),
+            contractor = savedStateHandle.get<String>(ARG_CONTRACTOR).orEmpty(),
+        ),
+    )
     val state: StateFlow<TbtFormState> = _state.asStateFlow()
 
     /** Contractors ranked by how often they report, locations by frequency, both from history. */
@@ -144,5 +152,10 @@ class TbtFormViewModel @Inject constructor(
         val next = current.change()
         if (!submittedOnce) next
         else next.copy(errors = validate(next.date, next.contractor, next.manpower, next.location, next.photoPath, LocalDate.now(clock)).errors)
+    }
+
+    companion object {
+        const val ARG_DATE = "date"
+        const val ARG_CONTRACTOR = "contractor"
     }
 }

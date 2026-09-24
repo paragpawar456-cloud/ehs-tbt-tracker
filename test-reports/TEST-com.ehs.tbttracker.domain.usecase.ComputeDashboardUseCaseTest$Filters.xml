@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest$Filters" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.356Z" hostname="runnervmtr4k5" time="0.004">
+  <properties/>
+  <testcase name="filter affects distribution but not today KPIs()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest$Filters" time="0.0"/>
+  <testcase name="date range is inclusive()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest$Filters" time="0.0"/>
+  <testcase name="query matches location contractor and notes case-insensitively()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest$Filters" time="0.001"/>
+  <testcase name="contractor filter()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest$Filters" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

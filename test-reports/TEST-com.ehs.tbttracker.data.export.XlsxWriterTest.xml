@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.data.export.XlsxWriterTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:22.765Z" hostname="runnervmtr4k5" time="0.005">
+  <properties/>
+  <testcase name="column names()" classname="com.ehs.tbttracker.data.export.XlsxWriterTest" time="0.001"/>
+  <testcase name="writes a valid workbook with escaped strings and numbers()" classname="com.ehs.tbttracker.data.export.XlsxWriterTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

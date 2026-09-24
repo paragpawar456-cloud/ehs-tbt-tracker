@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.ui.dashboard.DashboardViewModelTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.549Z" hostname="runnervmtr4k5" time="0.171">
+  <properties/>
+  <testcase name="log pages seven days at a time()" classname="com.ehs.tbttracker.ui.dashboard.DashboardViewModelTest" time="0.088"/>
+  <testcase name="emits KPIs as records arrive()" classname="com.ehs.tbttracker.ui.dashboard.DashboardViewModelTest" time="0.013"/>
+  <testcase name="refresh toggles isRefreshing and surfaces failures as message()" classname="com.ehs.tbttracker.ui.dashboard.DashboardViewModelTest" time="0.02"/>
+  <testcase name="offline state is reflected()" classname="com.ehs.tbttracker.ui.dashboard.DashboardViewModelTest" time="0.01"/>
+  <testcase name="contractor filter narrows distribution()" classname="com.ehs.tbttracker.ui.dashboard.DashboardViewModelTest" time="0.012"/>
+  <testcase name="refreshes from sheet on start()" classname="com.ehs.tbttracker.ui.dashboard.DashboardViewModelTest" time="0.006"/>
+  <testcase name="retry failed delegates to repository()" classname="com.ehs.tbttracker.ui.dashboard.DashboardViewModelTest" time="0.006"/>
+  <testcase name="range preset drives coverage and the day-grouped log()" classname="com.ehs.tbttracker.ui.dashboard.DashboardViewModelTest" time="0.011"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

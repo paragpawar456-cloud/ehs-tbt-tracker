@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.363Z" hostname="runnervmtr4k5" time="0.016">
+  <properties/>
+  <testcase name="future date rejected()" classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.001"/>
+  <testcase name="[1] " classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.003"/>
+  <testcase name="[2] 0" classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.001"/>
+  <testcase name="[3] abc" classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.0"/>
+  <testcase name="[4] 10 labour" classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.001"/>
+  <testcase name="[5] -3" classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.001"/>
+  <testcase name="[6] 501" classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.001"/>
+  <testcase name="[7] 1.5" classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.001"/>
+  <testcase name="stale date rejected()" classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.0"/>
+  <testcase name="valid draft()" classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.001"/>
+  <testcase name="missing fields each reported()" classname="com.ehs.tbttracker.domain.usecase.ValidateTbtDraftUseCaseTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

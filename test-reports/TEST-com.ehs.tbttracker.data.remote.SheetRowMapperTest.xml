@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.data.remote.SheetRowMapperTest" tests="5" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:22.782Z" hostname="runnervmtr4k5" time="0.028">
+  <properties/>
+  <testcase name="form rows get a stable content id independent of row number()" classname="com.ehs.tbttracker.data.remote.SheetRowMapperTest" time="0.001"/>
+  <testcase name="labour suffix and US dates()" classname="com.ehs.tbttracker.data.remote.SheetRowMapperTest" time="0.001"/>
+  <testcase name="blank date falls back to timestamp date()" classname="com.ehs.tbttracker.data.remote.SheetRowMapperTest" time="0.001"/>
+  <testcase name="every real sheet row is sanitised without loss()" classname="com.ehs.tbttracker.data.remote.SheetRowMapperTest" time="0.02"/>
+  <testcase name="client ref becomes the id so uploads and reads match()" classname="com.ehs.tbttracker.data.remote.SheetRowMapperTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.ui.form.TbtFormViewModelTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.777Z" hostname="runnervmtr4k5" time="0.21">
+  <properties/>
+  <testcase name="invalid submit shows field errors and error state without calling repository()" classname="com.ehs.tbttracker.ui.form.TbtFormViewModelTest" time="0.151"/>
+  <testcase name="offline submit reports queued for sync()" classname="com.ehs.tbttracker.ui.form.TbtFormViewModelTest" time="0.009"/>
+  <testcase name="errors clear live once fixed after first attempt()" classname="com.ehs.tbttracker.ui.form.TbtFormViewModelTest" time="0.004"/>
+  <testcase name="successful submit goes Submitting then Success and resets the form()" classname="com.ehs.tbttracker.ui.form.TbtFormViewModelTest" time="0.01"/>
+  <testcase name="date defaults to today()" classname="com.ehs.tbttracker.ui.form.TbtFormViewModelTest" time="0.004"/>
+  <testcase name="manpower input keeps digits only()" classname="com.ehs.tbttracker.ui.form.TbtFormViewModelTest" time="0.003"/>
+  <testcase name="photo capture is processed with contractor and location label()" classname="com.ehs.tbttracker.ui.form.TbtFormViewModelTest" time="0.006"/>
+  <testcase name="suggestions rank contractors by frequency and merge default locations()" classname="com.ehs.tbttracker.ui.form.TbtFormViewModelTest" time="0.01"/>
+  <testcase name="repository failure surfaces as Error and keeps input()" classname="com.ehs.tbttracker.ui.form.TbtFormViewModelTest" time="0.007"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

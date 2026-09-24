@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.ui.charts.NiceCeilTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.381Z" hostname="runnervmtr4k5" time="0.051">
+  <properties/>
+  <testcase name="axis maximum rounds up to clean numbers()" classname="com.ehs.tbttracker.ui.charts.NiceCeilTest" time="0.051"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

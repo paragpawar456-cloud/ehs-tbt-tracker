@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" tests="17" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.169Z" hostname="runnervmtr4k5" time="0.032">
+  <properties/>
+  <testcase name="2026-09-12 -&gt; 2026-09-12" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.001"/>
+  <testcase name="9/14/2026 -&gt; 2026-09-14" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.0"/>
+  <testcase name="09/05/2026 -&gt; 2026-09-05" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.001"/>
+  <testcase name="25/09/2026 -&gt; 2026-09-25" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.001"/>
+  <testcase name="2026-9-1 -&gt; 2026-09-01" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.0"/>
+  <testcase name="9/14/26 -&gt; 2026-09-14" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.001"/>
+  <testcase name="46289 -&gt; 2026-09-24" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.0"/>
+  <testcase name="2026-08-25 12:22:18 -&gt; 2026-08-25" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.0"/>
+  <testcase name="formats as ISO for the backend()" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.0"/>
+  <testcase name="2026-08-25 12:22:18 -&gt; 2026-08-25T12:22:18" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.0"/>
+  <testcase name="9/14/2026 9:27:34 -&gt; 2026-09-14T09:27:34" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.001"/>
+  <testcase name="9/14/2026 16:07:40 -&gt; 2026-09-14T16:07:40" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.001"/>
+  <testcase name="9/14/2026 4:07:40 PM -&gt; 2026-09-14T16:07:40" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.0"/>
+  <testcase name="9/14/2026 12:05:00 AM -&gt; 2026-09-14T00:05:00" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.001"/>
+  <testcase name="2026-09-14T09:27:34 -&gt; 2026-09-14T09:27:34" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.002"/>
+  <testcase name="9/14/2026 -&gt; 2026-09-14T00:00" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.0"/>
+  <testcase name="rejects garbage and impossible dates()" classname="com.ehs.tbttracker.domain.parsing.SheetDateParserTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

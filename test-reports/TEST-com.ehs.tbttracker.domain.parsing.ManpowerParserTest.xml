@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" tests="16" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.127Z" hostname="runnervmtr4k5" time="0.038">
+  <properties/>
+  <testcase name="&quot;5&quot; -&gt; 5" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.013"/>
+  <testcase name="&quot;06&quot; -&gt; 6" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="&quot;10 Labour&quot; -&gt; 10" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="&quot;10 Labour &quot; -&gt; 10" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="&quot;09nos&quot; -&gt; 9" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="&quot;09 nos&quot; -&gt; 9" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="&quot;Approx 35 workers&quot; -&gt; 35" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.0"/>
+  <testcase name="&quot;12+3&quot; -&gt; 12" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="null input is safe()" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="[1] " classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="[2]    " classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="[3] Labour" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.0"/>
+  <testcase name="[4] nos" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="[5] 0" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <testcase name="[6] 00" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.0"/>
+  <testcase name="[7] 99999" classname="com.ehs.tbttracker.domain.parsing.ManpowerParserTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

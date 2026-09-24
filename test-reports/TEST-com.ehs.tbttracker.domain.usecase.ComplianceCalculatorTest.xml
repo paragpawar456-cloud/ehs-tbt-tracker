@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.domain.usecase.ComplianceCalculatorTest" tests="7" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.203Z" hostname="runnervmtr4k5" time="0.12">
+  <properties/>
+  <testcase name="daily totals and contractor share for September()" classname="com.ehs.tbttracker.domain.usecase.ComplianceCalculatorTest" time="0.03"/>
+  <testcase name="default contractor is the one with most TBT days()" classname="com.ehs.tbttracker.domain.usecase.ComplianceCalculatorTest" time="0.022"/>
+  <testcase name="27 distinct TBT dates and master names win over form spellings()" classname="com.ehs.tbttracker.domain.usecase.ComplianceCalculatorTest" time="0.021"/>
+  <testcase name="location share merges spelling variants()" classname="com.ehs.tbttracker.domain.usecase.ComplianceCalculatorTest" time="0.023"/>
+  <testcase name="AMI Plumbing September matches the web portal()" classname="com.ehs.tbttracker.domain.usecase.ComplianceCalculatorTest" time="0.017"/>
+  <testcase name="monthly grid holds manpower per day and sorts by done days()" classname="com.ehs.tbttracker.domain.usecase.ComplianceCalculatorTest" time="0.002"/>
+  <testcase name="missing audit expects only contractors active in the month()" classname="com.ehs.tbttracker.domain.usecase.ComplianceCalculatorTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

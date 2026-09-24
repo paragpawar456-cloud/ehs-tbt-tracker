@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.326Z" hostname="runnervmtr4k5" time="0.027">
+  <properties/>
+  <testcase name="pending and failed rows are counted for the sync badge()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest" time="0.003"/>
+  <testcase name="range presets translate to inclusive date windows()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest" time="0.001"/>
+  <testcase name="not reported lists contractors active in the last 7 days without a TBT today()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest" time="0.0"/>
+  <testcase name="distribution is sorted by manpower and counts sessions()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest" time="0.0"/>
+  <testcase name="real sheet snapshot - 24 Sep 2026()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest" time="0.016"/>
+  <testcase name="yesterday figures feed the vs-yesterday deltas()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest" time="0.001"/>
+  <testcase name="trend covers 14 days ending today, zero-filled()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest" time="0.001"/>
+  <testcase name="today KPIs()" classname="com.ehs.tbttracker.domain.usecase.ComputeDashboardUseCaseTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

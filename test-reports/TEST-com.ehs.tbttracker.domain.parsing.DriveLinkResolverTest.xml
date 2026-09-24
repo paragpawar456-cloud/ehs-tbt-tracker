@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.domain.parsing.DriveLinkResolverTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.085Z" hostname="runnervmtr4k5" time="0.023">
+  <properties/>
+  <testcase name="[1] https://drive.google.com/open?id=1Ou6BGC3-26fr1a74iwUBJgD2MECRteRO" classname="com.ehs.tbttracker.domain.parsing.DriveLinkResolverTest" time="0.007"/>
+  <testcase name="[2] https://drive.google.com/file/d/1Ou6BGC3-26fr1a74iwUBJgD2MECRteRO/view?usp=sharing" classname="com.ehs.tbttracker.domain.parsing.DriveLinkResolverTest" time="0.001"/>
+  <testcase name="[3] https://drive.google.com/uc?export=view&amp;id=1Ou6BGC3-26fr1a74iwUBJgD2MECRteRO" classname="com.ehs.tbttracker.domain.parsing.DriveLinkResolverTest" time="0.001"/>
+  <testcase name="[4] https://lh3.googleusercontent.com/d/1Ou6BGC3-26fr1a74iwUBJgD2MECRteRO=w800" classname="com.ehs.tbttracker.domain.parsing.DriveLinkResolverTest" time="0.001"/>
+  <testcase name="[5] https://drive.google.com/open?id=1Ou6BGC3-26fr1a74iwUBJgD2MECRteRO, https://drive.google.com/open?id=other123456789" classname="com.ehs.tbttracker.domain.parsing.DriveLinkResolverTest" time="0.001"/>
+  <testcase name="ids with underscores and trailing dash are kept intact()" classname="com.ehs.tbttracker.domain.parsing.DriveLinkResolverTest" time="0.001"/>
+  <testcase name="builds direct thumbnail urls()" classname="com.ehs.tbttracker.domain.parsing.DriveLinkResolverTest" time="0.001"/>
+  <testcase name="maps to photo refs()" classname="com.ehs.tbttracker.domain.parsing.DriveLinkResolverTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

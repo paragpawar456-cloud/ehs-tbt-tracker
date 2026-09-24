@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.ehs.tbttracker.domain.parsing.ContractorNormalizerTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-09-24T18:28:25.023Z" hostname="runnervmtr4k5" time="0.024">
+  <properties/>
+  <testcase name="short single words never prefix-merge()" classname="com.ehs.tbttracker.domain.parsing.ContractorNormalizerTest" time="0.001"/>
+  <testcase name="real sheet collapses 18 raw spellings into 15 contractors()" classname="com.ehs.tbttracker.domain.parsing.ContractorNormalizerTest" time="0.002"/>
+  <testcase name="merges case and whitespace variants()" classname="com.ehs.tbttracker.domain.parsing.ContractorNormalizerTest" time="0.001"/>
+  <testcase name="does not merge different companies that share a generic word()" classname="com.ehs.tbttracker.domain.parsing.ContractorNormalizerTest" time="0.001"/>
+  <testcase name="merges abbreviated and extended spellings()" classname="com.ehs.tbttracker.domain.parsing.ContractorNormalizerTest" time="0.0"/>
+  <testcase name="unknown and blank names()" classname="com.ehs.tbttracker.domain.parsing.ContractorNormalizerTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -11,36 +11,36 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - uses: android-actions/setup-android@v3
-
-      - uses: gradle/actions/setup-gradle@v4
-
-      - name: Write local config (secrets override gradle.properties only when set)
+      # The GitHub Ubuntu image already ships JDK 17 and the Android SDK; every step logs to a file
+      # that is published to the build-output branch so it can be read without the Actions UI.
+      - name: Environment
         run: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
-          if [ -n "${{ secrets.EHS_WEB_APP_URL }}" ]; then echo "EHS_WEB_APP_URL=${{ secrets.EHS_WEB_APP_URL }}" >> local.properties; fi
-          if [ -n "${{ secrets.EHS_API_TOKEN }}" ]; then echo "EHS_API_TOKEN=${{ secrets.EHS_API_TOKEN }}" >> local.properties; fi
+          mkdir -p logs
+          {
+            echo "JAVA_HOME_17_X64=$JAVA_HOME_17_X64"
+            echo "ANDROID_HOME=$ANDROID_HOME"
+            ls "$ANDROID_HOME/platforms" "$ANDROID_HOME/build-tools" 2>&1 || true
+          } 2>&1 | tee logs/env.log
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
           chmod +x gradlew
 
       - name: Build debug APK
         run: |
           set -o pipefail
-          ./gradlew assembleDebug --stacktrace 2>&1 | tee build.log
+          export JAVA_HOME="$JAVA_HOME_17_X64"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > logs/licenses.log 2>&1 || true
+          ./gradlew assembleDebug --stacktrace --no-daemon 2>&1 | tee logs/build.log
 
       - name: Run unit tests
         continue-on-error: true
         run: |
           set -o pipefail
-          ./gradlew testDebugUnitTest 2>&1 | tee test.log
+          export JAVA_HOME="$JAVA_HOME_17_X64"
+          ./gradlew testDebugUnitTest --no-daemon 2>&1 | tee logs/test.log
 
       - uses: actions/upload-artifact@v4
         if: success()
@@ -48,13 +48,11 @@ jobs:
           name: EHS-TBT-Tracker-apk
           path: app/build/outputs/apk/debug/app-debug.apk
 
-      # Copies the APK and logs to a "build-output" branch so they can be fetched with plain git.
       - name: Publish build output branch
         if: always()
         run: |
           mkdir -p out
-          cp build.log out/ 2>/dev/null || true
-          cp test.log out/ 2>/dev/null || true
+          cp -r logs out/ 2>/dev/null || true
           mkdir -p out/test-reports && cp -r app/build/test-results/testDebugUnitTest/*.xml out/test-reports/ 2>/dev/null || true
           cp app/build/outputs/apk/debug/app-debug.apk out/ 2>/dev/null || true
           echo "run=${{ github.run_number }} status=${{ job.status }} sha=${{ github.sha }}" > out/STATUS.txt

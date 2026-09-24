@@ -55,6 +55,7 @@ jobs:
           cp -r logs out/ 2>/dev/null || true
           mkdir -p out/test-reports && cp -r app/build/test-results/testDebugUnitTest/*.xml out/test-reports/ 2>/dev/null || true
           cp app/build/outputs/apk/debug/app-debug.apk out/ 2>/dev/null || true
+          mkdir -p out/screenshots && cp app/build/screenshots/*.png out/screenshots/ 2>/dev/null || true
           echo "run=${{ github.run_number }} status=${{ job.status }} sha=${{ github.sha }}" > out/STATUS.txt
           cd out
           git init -q

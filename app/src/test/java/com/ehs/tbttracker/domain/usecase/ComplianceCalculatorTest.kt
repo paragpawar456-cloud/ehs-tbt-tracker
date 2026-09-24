@@ -76,4 +76,35 @@ class ComplianceCalculatorTest {
         assertThat(calc.defaultContractor(sep)).isEqualTo("Choudhary Construction")
         assertThat(calc.months).containsExactly(sep, YearMonth.of(2026, 8)).inOrder()
     }
+
+    @Test
+    fun `daily totals and contractor share for September`() {
+        val calc = ComplianceCalculator(realRecords(), emptyList(), TODAY)
+        val daily = calc.dailyTotals(sep)
+        assertThat(daily).hasSize(30)
+        assertThat(daily.sumOf { it.manpower }).isEqualTo(1038)
+        assertThat(daily[21].manpower).isEqualTo(82)
+        assertThat(daily[21].sessions).isEqualTo(7)
+        assertThat(calc.dailyTotals(sep, "Ami Plumbing").sumOf { it.manpower }).isEqualTo(77)
+
+        val share = calc.contractorShare(sep)
+        assertThat(share).hasSize(6)
+        assertThat(share.first().label).isEqualTo("Credible Construction Company")
+        assertThat(share.first().value).isEqualTo(386)
+        assertThat(share.last().isOther).isTrue()
+        assertThat(share.last().label).isEqualTo("Other (8)")
+        assertThat(share.sumOf { it.value }).isEqualTo(1038)
+    }
+
+    @Test
+    fun `location share merges spelling variants`() {
+        val calc = ComplianceCalculator(realRecords(), emptyList(), TODAY)
+        val ami = calc.locationShare("Ami Plumbing", sep)
+        assertThat(ami).hasSize(1)
+        assertThat(ami.single().value).isEqualTo(13)
+        val choudhary = calc.locationShare("Choudhary Construction", sep)
+        assertThat(choudhary.first().label).isEqualTo("Tower D1 Laval 09")
+        assertThat(choudhary.first().value).isEqualTo(8)
+        assertThat(choudhary.sumOf { it.value }).isEqualTo(15)
+    }
 }

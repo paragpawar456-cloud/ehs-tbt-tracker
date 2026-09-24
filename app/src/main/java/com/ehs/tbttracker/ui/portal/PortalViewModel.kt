@@ -4,7 +4,9 @@ import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ehs.tbttracker.data.export.AuditExporter
+import com.ehs.tbttracker.domain.model.DayTotal
 import com.ehs.tbttracker.domain.model.TbtRecord
+import com.ehs.tbttracker.domain.usecase.ShareItem
 import com.ehs.tbttracker.domain.repository.ConnectivityObserver
 import com.ehs.tbttracker.domain.repository.TbtRepository
 import com.ehs.tbttracker.domain.usecase.ComplianceCalculator
@@ -70,6 +72,12 @@ data class PortalUiState(
     val grid: List<GridRow> = emptyList(),
     val masters: List<MasterContractorSummary> = emptyList(),
     val records: List<TbtRecord> = emptyList(),
+    /** Chart data for the selected month. */
+    val monthDaily: List<DayTotal> = emptyList(),
+    val contractorDaily: List<DayTotal> = emptyList(),
+    val contractorShare: List<ShareItem> = emptyList(),
+    val locationShare: List<ShareItem> = emptyList(),
+    val topByDays: List<Pair<String, Int>> = emptyList(),
     val today: LocalDate,
 )
 
@@ -100,41 +108,7 @@ class PortalViewModel @Inject constructor(
         connectivity.isOnline.onStart { emit(connectivity.isCurrentlyOnline()) },
         sync,
     ) { records, masters, sel, online, s ->
-        val today = LocalDate.now(clock)
-        val calc = ComplianceCalculator(records, masters, today)
-        val month = sel.month ?: YearMonth.from(today)
-        val contractor = sel.contractor?.takeIf { it in calc.allContractors } ?: calc.defaultContractor(month)
-        val counts = calc.doneCounts(month)
-        val q = sel.contractorQuery.trim().lowercase()
-        val rq = sel.recordQuery.trim().lowercase()
-        PortalUiState(
-            loading = false,
-            refreshing = s.refreshing,
-            online = online,
-            syncError = s.error,
-            totalLogs = records.size,
-            registeredContractors = calc.registeredCount,
-            distinctDates = calc.distinctDates,
-            months = calc.months,
-            selection = sel,
-            month = month,
-            contractor = contractor,
-            contractorChips = counts.entries
-                .filter { q.isEmpty() || it.key.lowercase().contains(q) }
-                .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key.lowercase() })
-                .map { it.key to it.value },
-            allContractors = calc.allContractors,
-            report = contractor?.let { calc.contractorReport(it, month) },
-            dateWise = calc.dateWise(),
-            missing = calc.missingAudit(month),
-            grid = calc.monthlyGrid(month),
-            masters = calc.masterSummaries(month),
-            records = calc.records.filter { r ->
-                rq.isEmpty() || r.contractor.lowercase().contains(rq) || r.location.lowercase().contains(rq) ||
-                    r.notes.lowercase().contains(rq) || r.date?.toString()?.contains(rq) == true
-            },
-            today = today,
-        )
+        buildPortalState(records, masters, sel, online, s.refreshing, s.error, LocalDate.now(clock))
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5_000),
@@ -175,4 +149,57 @@ class PortalViewModel @Inject constructor(
                 .onFailure { _events.tryEmit(PortalEvent.Message("Export failed: ${it.message}")) }
         }
     }
+}
+
+/** Pure mapping from data + selection to screen state (used by the ViewModel and by screenshot tests). */
+internal fun buildPortalState(
+    records: List<TbtRecord>,
+    masters: List<String>,
+    sel: PortalSelection,
+    online: Boolean,
+    refreshing: Boolean,
+    syncError: String?,
+    today: LocalDate,
+): PortalUiState {
+    val calc = ComplianceCalculator(records, masters, today)
+    val month = sel.month ?: YearMonth.from(today)
+    val contractor = sel.contractor?.takeIf { it in calc.allContractors } ?: calc.defaultContractor(month)
+    val counts = calc.doneCounts(month)
+    val q = sel.contractorQuery.trim().lowercase()
+    val rq = sel.recordQuery.trim().lowercase()
+    return PortalUiState(
+        loading = false,
+        refreshing = refreshing,
+        online = online,
+        syncError = syncError,
+        totalLogs = records.size,
+        registeredContractors = calc.registeredCount,
+        distinctDates = calc.distinctDates,
+        months = calc.months,
+        selection = sel,
+        month = month,
+        contractor = contractor,
+        contractorChips = counts.entries
+            .filter { q.isEmpty() || it.key.lowercase().contains(q) }
+            .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key.lowercase() })
+            .map { it.key to it.value },
+        allContractors = calc.allContractors,
+        report = contractor?.let { calc.contractorReport(it, month) },
+        dateWise = calc.dateWise(),
+        missing = calc.missingAudit(month),
+        grid = calc.monthlyGrid(month),
+        masters = calc.masterSummaries(month),
+        records = calc.records.filter { r ->
+            rq.isEmpty() || r.contractor.lowercase().contains(rq) || r.location.lowercase().contains(rq) ||
+                r.notes.lowercase().contains(rq) || r.date?.toString()?.contains(rq) == true
+        },
+        monthDaily = calc.dailyTotals(month),
+        contractorDaily = contractor?.let { calc.dailyTotals(month, it) }.orEmpty(),
+        contractorShare = calc.contractorShare(month),
+        locationShare = contractor?.let { calc.locationShare(it, month) }.orEmpty(),
+        topByDays = counts.entries.filter { it.value > 0 }
+            .sortedWith(compareByDescending<Map.Entry<String, Int>> { it.value }.thenBy { it.key.lowercase() })
+            .take(8).map { it.key to it.value },
+        today = today,
+    )
 }

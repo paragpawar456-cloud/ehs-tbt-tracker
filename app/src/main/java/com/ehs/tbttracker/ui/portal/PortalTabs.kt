@@ -65,6 +65,15 @@ import com.ehs.tbttracker.domain.model.RangePreset
 import com.ehs.tbttracker.domain.model.SyncState
 import com.ehs.tbttracker.domain.model.TbtRecord
 import com.ehs.tbttracker.domain.usecase.DayStatus
+import com.ehs.tbttracker.domain.usecase.ShareItem
+import com.ehs.tbttracker.ui.charts.ChartCard
+import com.ehs.tbttracker.ui.charts.ChartTheme
+import com.ehs.tbttracker.ui.charts.Column1
+import com.ehs.tbttracker.ui.charts.ColumnChart
+import com.ehs.tbttracker.ui.charts.DonutChart
+import com.ehs.tbttracker.ui.charts.RankItem
+import com.ehs.tbttracker.ui.charts.RankedBars
+import com.ehs.tbttracker.ui.charts.Slice
 import com.ehs.tbttracker.ui.dashboard.AnalyticsContent
 import com.ehs.tbttracker.ui.dashboard.DashboardActions
 import com.ehs.tbttracker.ui.dashboard.DashboardViewModel
@@ -84,6 +93,7 @@ fun LazyListScope.contractorWiseTab(state: PortalUiState, a: PortalActions) {
         return
     }
     item(key = "cw_kpis") { ContractorKpis(state) }
+    item(key = "cw_charts") { ContractorCharts(state) }
     item(key = "cw_done_head") {
         PanelHeader(
             title = "Days TBT was done (${r.doneDays.size} days)",
@@ -181,7 +191,7 @@ private fun ContractorChipsCard(state: PortalUiState, a: PortalActions) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ContractorKpis(state: PortalUiState) {
+internal fun ContractorKpis(state: PortalUiState) {
     val r = state.report ?: return
     val c = Portal.colors
     val monthName = r.month.format(Portal.monthShort).uppercase()
@@ -301,9 +311,13 @@ fun LazyListScope.dateWiseTab(state: PortalUiState, a: PortalActions) {
     item(key = "dw_head") {
         PortalCard {
             SectionLabel("Date wise TBT (${state.dateWise.size} dates)", Icons.Filled.CheckCircle, Portal.colors.green)
-            Text("Every date with at least one toolbox talk, newest first.", color = Portal.colors.muted, fontSize = 13.sp)
+            Text("Site-wide view: workers briefed and sessions per day, contractor share, and every TBT date.",
+                color = Portal.colors.muted, fontSize = 13.sp)
+            Picker("Month:", state.month, state.months, { it.label() }, a.vm::selectMonth, Modifier.fillMaxWidth(), tag = "dw_month")
         }
     }
+    item(key = "dw_charts") { DateWiseCharts(state, a.vm::openContractor) }
+    item(key = "dw_list_head") { SectionLabel("All TBT dates", null, Portal.colors.muted) }
     if (state.dateWise.isEmpty()) item { EmptyNote("No TBT dates yet.") }
     items(state.dateWise, key = { "dw_${it.date}" }) { day ->
         val c = Portal.colors
@@ -537,3 +551,82 @@ private fun SearchBox(value: String, placeholder: String, onChange: (String) -> 
 private fun EmptyNote(text: String) {
     Text(text, color = Portal.colors.muted, fontSize = 14.sp, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(16.dp))
 }
+
+// ================================================================== Charts (Power BI style cards)
+
+private val dayTitle = java.time.format.DateTimeFormatter.ofPattern("EEE d MMM", Locale.ENGLISH)
+
+private fun List<com.ehs.tbttracker.domain.model.DayTotal>.toColumns(today: LocalDate, value: (com.ehs.tbttracker.domain.model.DayTotal) -> Int) =
+    map { d -> Column1(label = "${d.date.dayOfMonth}", title = d.date.format(dayTitle), value = value(d), emphasized = d.date == today) }
+
+@Composable
+private fun shareSlices(items: List<ShareItem>): List<Slice> {
+    val cc = ChartTheme.colors
+    return items.mapIndexed { i, s -> Slice(s.label, s.value, if (s.isOther) cc.other else cc.series[i % cc.series.size]) }
+}
+
+@Composable
+internal fun ContractorCharts(state: PortalUiState) {
+    val r = state.report ?: return
+    val cc = ChartTheme.colors
+    val month = r.month.label()
+    val compliance = listOf(
+        Slice("✓ TBT Done", r.doneDays.size, cc.good),
+        Slice("✗ No TBT Done", r.notDoneDays.count { !it.upcoming }, cc.critical),
+        Slice("○ Upcoming", r.notDoneDays.count { it.upcoming }, cc.neutral),
+    ).filter { it.value > 0 }
+    val complianceCard: @Composable (Modifier) -> Unit = { m ->
+        ChartCard("TBT compliance · $month", "Days with a TBT vs days without", m) {
+            DonutChart(compliance, "${r.complianceRate}%", "compliance", "days", tag = "donut_compliance")
+        }
+    }
+    val locationCard: @Composable (Modifier) -> Unit = { m ->
+        ChartCard("TBT locations · ${r.contractor}", "Sessions by site location", m) {
+            if (state.locationShare.isEmpty()) Text("No sessions this month.", color = Portal.colors.muted, fontSize = 13.sp)
+            else DonutChart(shareSlices(state.locationShare), "${r.sessions}", "sessions", "sessions", tag = "donut_locations")
+        }
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        BoxWithConstraints {
+            if (maxWidth > 700.dp) {
+                Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    complianceCard(Modifier.weight(1f)); locationCard(Modifier.weight(1f))
+                }
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) { complianceCard(Modifier); locationCard(Modifier) }
+            }
+        }
+        ChartCard("Daily manpower · ${r.contractor}", "Workers briefed each day of $month · tap a bar for details") {
+            ColumnChart(state.contractorDaily.toColumns(state.today) { it.manpower }, cc.series[0], "workers", tag = "col_contractor_daily")
+        }
+    }
+}
+
+@Composable
+internal fun DateWiseCharts(state: PortalUiState, onOpenContractor: (String) -> Unit) {
+    val cc = ChartTheme.colors
+    val month = state.month.label()
+    val totalWorkers = state.monthDaily.sumOf { it.manpower }
+    val totalSessions = state.monthDaily.sumOf { it.sessions }
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        ChartCard("Workers briefed per day · $month", "$totalWorkers worker-briefings across all contractors · tap a bar") {
+            ColumnChart(state.monthDaily.toColumns(state.today) { it.manpower }, cc.series[0], "workers", tag = "col_month_workers")
+        }
+        ChartCard("TBT sessions per day · $month", "$totalSessions sessions · one bar per day") {
+            ColumnChart(state.monthDaily.toColumns(state.today) { it.sessions }, cc.series[2], "sessions", height = 150.dp, tag = "col_month_sessions")
+        }
+        ChartCard("Manpower share by contractor", "$month · top 5 plus other contractors") {
+            if (state.contractorShare.isEmpty()) Text("No TBTs this month.", color = Portal.colors.muted, fontSize = 13.sp)
+            else DonutChart(shareSlices(state.contractorShare), "$totalWorkers", "workers", "workers", tag = "donut_contractor_share")
+        }
+        ChartCard("Top contractors by TBT days", "$month · tap a contractor to open its audit sheet") {
+            if (state.topByDays.isEmpty()) Text("No TBTs this month.", color = Portal.colors.muted, fontSize = 13.sp)
+            else RankedBars(
+                state.topByDays.map { (n, d) -> RankItem(n, d, "of ${state.month.lengthOfMonth()} days") },
+                cc.series[0],
+                onClick = onOpenContractor,
+            )
+        }
+    }
+}
+

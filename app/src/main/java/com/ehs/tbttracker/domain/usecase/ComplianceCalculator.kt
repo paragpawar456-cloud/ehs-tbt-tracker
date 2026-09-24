@@ -1,5 +1,6 @@
 package com.ehs.tbttracker.domain.usecase
 
+import com.ehs.tbttracker.domain.model.DayTotal
 import com.ehs.tbttracker.domain.model.TbtRecord
 import com.ehs.tbttracker.domain.parsing.ContractorNormalizer
 import java.time.LocalDate
@@ -45,6 +46,9 @@ data class MissingDay(val date: LocalDate, val reported: List<String>, val missi
 data class GridRow(val contractor: String, val cells: List<Int?>) {
     val doneDays: Int get() = cells.count { it != null }
 }
+
+/** One slice of a part-to-whole chart; [isOther] marks the folded remainder. */
+data class ShareItem(val label: String, val value: Int, val sessions: Int, val isOther: Boolean = false)
 
 data class MasterContractorSummary(
     val name: String,
@@ -161,4 +165,38 @@ class ComplianceCalculator(records: List<TbtRecord>, masters: List<String>, priv
     fun defaultContractor(month: YearMonth): String? =
         doneCounts(month).entries.filter { it.value > 0 }.maxWithOrNull(compareBy<Map.Entry<String, Int>> { it.value }.thenByDescending { it.key })?.key
             ?: allContractors.firstOrNull()
+
+    /** Every day of the month with workers briefed and TBT sessions (all contractors). */
+    fun dailyTotals(month: YearMonth, contractor: String? = null): List<DayTotal> {
+        val byDate = records.filter { inMonth(it, month) && (contractor == null || it.contractor == contractor) }.groupBy { it.date!! }
+        return (1..month.lengthOfMonth()).map { d ->
+            val rs = byDate[month.atDay(d)].orEmpty()
+            DayTotal(month.atDay(d), rs.sumOf { it.manpower }, rs.size)
+        }
+    }
+
+    /** Manpower share by contractor for the month: the top [top] plus a folded "Other". */
+    fun contractorShare(month: YearMonth, top: Int = 5): List<ShareItem> =
+        fold(records.filter { inMonth(it, month) }.groupBy { it.contractor }
+            .map { (c, rs) -> ShareItem(c, rs.sumOf { it.manpower }, rs.size) }, top)
+
+    /** Where a contractor held its TBTs in the month (sessions by location), top [top] plus "Other". */
+    fun locationShare(contractor: String, month: YearMonth, top: Int = 4): List<ShareItem> {
+        val rs = records.filter { it.contractor == contractor && inMonth(it, month) }
+        val groups = rs.groupBy { locationKey(it.location) }
+        return fold(groups.map { (_, g) ->
+            val label = g.map { it.location.trim().replace(Regex("""\s+"""), " ") }.filter { it.isNotEmpty() }
+                .groupingBy { it }.eachCount().maxByOrNull { it.value }?.key ?: "Not recorded"
+            ShareItem(label, g.size, g.size)
+        }, top)
+    }
+
+    private fun locationKey(l: String) = l.lowercase().replace(Regex("""[^a-z0-9]+"""), " ").trim().ifEmpty { "-" }
+
+    private fun fold(items: List<ShareItem>, top: Int): List<ShareItem> {
+        val sorted = items.filter { it.value > 0 }.sortedWith(compareByDescending<ShareItem> { it.value }.thenBy { it.label.lowercase() })
+        if (sorted.size <= top + 1) return sorted
+        val rest = sorted.drop(top)
+        return sorted.take(top) + ShareItem("Other (${rest.size})", rest.sumOf { it.value }, rest.sumOf { it.sessions }, isOther = true)
+    }
 }

@@ -57,6 +57,9 @@ android {
     }
     testOptions {
         unitTests.isReturnDefaultValues = true
+        // Robolectric + Roborazzi screenshot tests render Compose on the JVM and write PNGs to build/screenshots.
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all { it.systemProperty("roborazzi.test.record", "true") }
     }
 }
 
@@ -123,6 +126,15 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.okhttp.mockwebserver)
+    // Screenshot tests (JUnit 4 via the vintage engine)
+    testImplementation(libs.junit4)
+    testRuntimeOnly(libs.junit.vintage.engine)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(libs.androidx.test.ext.junit)
 
     // ---- Instrumented tests (Room, WorkManager, Compose UI) ----
     androidTestImplementation(libs.androidx.test.core)

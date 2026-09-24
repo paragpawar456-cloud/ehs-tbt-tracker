@@ -23,7 +23,6 @@
 var DEFAULT_API_TOKEN = 'ehs-55d7b73c83db2873a682e4556334a006c398095e';
 
 var SPREADSHEET_ID = '1nmAYAH25c2-4TVLvPJaOJLjbFRYbuzK8tteh1xPD-jw';
-var SHEET_GID = 1314221799;
 var CLIENT_REF_HEADER = 'Client Ref';
 var COL = { TIMESTAMP: 1, DATE: 2, CONTRACTOR: 3, MANPOWER: 4, LOCATION: 5, PHOTO: 6, NOTES: 7, CLIENT_REF: 8 };
 var MAX_PHOTO_BYTES = 8 * 1024 * 1024;
@@ -176,13 +175,37 @@ function thumbnail_(fileId, size) {
 
 // ---------------------------------------------------------------------------- helpers
 
+/**
+ * Returns the tab that holds the TBT rows. The link's gid can point at a chart tab, so the data tab
+ * is found by its header row (Timestamp + Name contractor) and remembered in script properties.
+ */
 function getSheet_() {
   var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sheets = ss.getSheets();
+  var cached = Number(prop_('DATA_SHEET_ID'));
   for (var i = 0; i < sheets.length; i++) {
-    if (sheets[i].getSheetId() === SHEET_GID) return sheets[i];
+    if (cached && sheets[i].getSheetId() === cached && isDataSheet_(sheets[i])) return sheets[i];
   }
-  throw apiError_(500, 'Sheet tab with gid ' + SHEET_GID + ' not found');
+  var candidates = [];
+  for (var j = 0; j < sheets.length; j++) {
+    if (isDataSheet_(sheets[j])) candidates.push(sheets[j]);
+  }
+  if (!candidates.length) throw apiError_(500, 'No tab with a "Timestamp" and "Name contractor" header row was found');
+  // Prefer the Google Form responses tab, then the one with the most rows.
+  candidates.sort(function (a, b) {
+    var fa = a.getFormUrl ? (a.getFormUrl() ? 1 : 0) : 0, fb = b.getFormUrl ? (b.getFormUrl() ? 1 : 0) : 0;
+    return (fb - fa) || (b.getLastRow() - a.getLastRow());
+  });
+  PropertiesService.getScriptProperties().setProperty('DATA_SHEET_ID', String(candidates[0].getSheetId()));
+  return candidates[0];
+}
+
+function isDataSheet_(sheet) {
+  if (sheet.getType && sheet.getType() !== SpreadsheetApp.SheetType.GRID) return false;
+  if (sheet.getLastRow() < 1 || sheet.getLastColumn() < 3) return false;
+  var header = sheet.getRange(1, 1, 1, Math.min(sheet.getLastColumn(), 10)).getDisplayValues()[0]
+    .map(function (h) { return String(h).trim().toLowerCase(); });
+  return header[0] === 'timestamp' && header.some(function (h) { return h.indexOf('contractor') >= 0; });
 }
 
 function ensureClientRefColumn_(sheet) {

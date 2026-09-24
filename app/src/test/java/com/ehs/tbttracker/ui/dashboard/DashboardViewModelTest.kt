@@ -140,6 +140,7 @@ class DashboardViewModelTest {
             val msgState = expectMostRecentItem()
             assertThat(msgState.isRefreshing).isFalse()
             assertThat(msgState.message).contains("Unable to resolve host")
+            assertThat(msgState.syncError).isEqualTo("Unable to resolve host")
             vm.messageShown()
             assertThat(awaitItem().message).isNull()
         }

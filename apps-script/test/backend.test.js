@@ -3,7 +3,7 @@ const grid = [["Timestamp","Date","Name contractor","Nos of Manpower ","Location
   ["9/24/2026 9:34:45","9/24/2026","Choudhary construction ","09","Tower D1 Laval 09 ","https://drive.google.com/open?id=13ROyvWlJfOrBj3ZakM0kvdNRSY0aH37X",""]];
 const disp = v => v instanceof Date ? `${v.getMonth()+1}/${v.getDate()}/${v.getFullYear()}` : (v == null ? "" : String(v));
 const sheet = {
-  getSheetId: () => 1314221799, getName: () => "Form Responses 1",
+  getSheetId: () => 42, getName: () => "Form Responses 1", getType: () => 'GRID', getFormUrl: () => 'https://docs.google.com/forms/x',
   getLastRow: () => grid.length, getLastColumn: () => Math.max(...grid.map(r => r.length)),
   getRange: (r, c, nr = 1, nc = 1) => ({
     getDisplayValues: () => grid.slice(r-1, r-1+nr).map(row => Array.from({length: nc}, (_, i) => disp(row[c-1+i]))),
@@ -14,11 +14,13 @@ const sheet = {
   }),
   appendRow: row => grid.push(row.map(x => x)),
 };
+// Chart tab (the gid in the shared link) must be skipped.
+const chartTab = { getSheetId: () => 1314221799, getType: () => 'OBJECT', getLastRow: () => { throw new Error('The action is not supported for OBJECT sheet.'); } };
 const props = { API_TOKEN: "s3cret", PHOTO_FOLDER_ID: "folder" };
 let created = [];
 const ctx = {
   console, Date, JSON, Math, Number, String, Error, isNaN,
-  SpreadsheetApp: { openById: () => ({ getSheets: () => [sheet] }), flush: () => {} },
+  SpreadsheetApp: { openById: () => ({ getSheets: () => [chartTab, sheet] }), flush: () => {}, SheetType: { GRID: 'GRID', OBJECT: 'OBJECT' } },
   PropertiesService: { getScriptProperties: () => ({ getProperty: k => props[k], setProperty: (k, v) => props[k] = v }) },
   LockService: { getScriptLock: () => ({ waitLock: () => {}, releaseLock: () => {} }) },
   Utilities: { base64Decode: s => Buffer.from(s, 'base64'), newBlob: (b, m, n) => ({ b, m, n }), base64Encode: b => Buffer.from(b).toString('base64') },
@@ -34,6 +36,7 @@ const assert = (c, m) => { if (!c) { console.log("FAIL", m); process.exitCode = 
 
 assert(get({ token: "bad" }).code === 401, "rejects bad token");
 const l = get({ token: "s3cret" });
+assert(props.DATA_SHEET_ID === "42", "picks the data tab, skips the chart tab");
 assert(l.ok && l.rows.length === 1 && l.rows[0].manpower === "09" && l.rows[0].row === 2, "lists display values with row numbers");
 const body = { action: "create", token: "s3cret", clientRef: "uuid-1", date: "2026-09-24", contractor: "Stellar", manpower: 4,
   location: "B1. 8 Floor", notes: "PPE ok", photoBase64: Buffer.from("jpegbytes").toString('base64'), photoMime: "image/jpeg", photoName: "a b.jpg" };

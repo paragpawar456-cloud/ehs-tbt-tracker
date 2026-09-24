@@ -137,6 +137,7 @@ fun DashboardScreen(state: DashboardUiState, actions: DashboardActions) {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 if (!state.isOnline) item { OfflineBanner(state.stats.pendingSyncCount) }
+                if (state.syncError != null && state.isOnline) item { SyncErrorBanner(state.syncError) }
                 if (state.failedCount > 0) item { FailedBanner(state.failedCount, actions.onRetryFailed) }
                 item { TodayHeader(state.stats.today) }
                 item { KpiRow(state) }
@@ -164,6 +165,7 @@ private fun SiteTopBar(state: DashboardUiState, actions: DashboardActions) {
     val (dotColor, status) = when {
         state.isRefreshing || state.isLoading -> c.warn to "Syncing with Google Sheet…"
         !state.isOnline -> c.crit to "Offline"
+        state.syncError != null -> c.crit to "Sync failed · tap ⟳ to retry"
         else -> c.accent to "${state.totalRows} rows · live"
     }
     Row(
@@ -193,6 +195,18 @@ private fun SiteTopBar(state: DashboardUiState, actions: DashboardActions) {
             Spacer(Modifier.width(4.dp))
             Text("New TBT", fontWeight = FontWeight.SemiBold)
         }
+    }
+}
+
+@Composable
+private fun SyncErrorBanner(reason: String) {
+    val c = Ehs.colors
+    Column(
+        Modifier.fillMaxWidth().background(c.critSoft, RoundedCornerShape(10.dp)).padding(horizontal = 14.dp, vertical = 10.dp)
+            .testTag("sync_error_banner"),
+    ) {
+        Text("Could not load the Google Sheet", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold), color = c.ink)
+        Text(reason, style = MaterialTheme.typography.bodySmall, color = c.ink)
     }
 }
 

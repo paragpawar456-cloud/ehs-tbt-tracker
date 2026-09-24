@@ -51,6 +51,8 @@ data class DashboardUiState(
     val totalRows: Int = 0,
     val failedCount: Int = 0,
     val message: String? = null,
+    /** Last refresh error, cleared by the next successful refresh. */
+    val syncError: String? = null,
 ) {
     /** Kept for callers/tests that read the filter directly. */
     val filter: RecordFilter get() = RecordFilter(contractor = controls.contractor, query = controls.query)
@@ -65,16 +67,15 @@ class DashboardViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val controls = MutableStateFlow(DashboardControls())
-    private val refreshing = MutableStateFlow(false)
-    private val message = MutableStateFlow<String?>(null)
+    private data class SyncUi(val refreshing: Boolean = false, val message: String? = null, val error: String? = null)
+    private val sync = MutableStateFlow(SyncUi())
 
     val uiState: StateFlow<DashboardUiState> = combine(
         repository.observeRecords(),
         controls,
         connectivity.isOnline.onStart { emit(connectivity.isCurrentlyOnline()) },
-        refreshing,
-        message,
-    ) { records, c, online, isRefreshing, msg ->
+        sync,
+    ) { records, c, online, syncUi ->
         val today = LocalDate.now(clock)
         val filter = c.range.toFilter(today, RecordFilter(contractor = c.contractor, query = c.query))
         val filtered = ComputeDashboardUseCase.applyFilter(records, filter)
@@ -82,7 +83,7 @@ class DashboardViewModel @Inject constructor(
             .sortedWith(compareByDescending(nullsFirst<LocalDate>()) { it.date })
         DashboardUiState(
             isLoading = false,
-            isRefreshing = isRefreshing,
+            isRefreshing = syncUi.refreshing,
             isOnline = online,
             stats = computeDashboard(records, filter, today),
             controls = c,
@@ -92,7 +93,8 @@ class DashboardViewModel @Inject constructor(
             filteredCount = filtered.size,
             totalRows = records.size,
             failedCount = records.count { it.syncState == SyncState.FAILED },
-            message = msg,
+            message = syncUi.message,
+            syncError = syncUi.error,
         )
     }.stateIn(
         viewModelScope,
@@ -105,11 +107,15 @@ class DashboardViewModel @Inject constructor(
     }
 
     fun refresh() {
-        if (refreshing.value) return
+        if (sync.value.refreshing) return
+        sync.update { it.copy(refreshing = true) }
         viewModelScope.launch {
-            refreshing.value = true
-            repository.refresh().onFailure { message.value = "Showing saved data - ${it.message ?: "sync failed"}" }
-            refreshing.value = false
+            repository.refresh()
+                .onSuccess { sync.update { it.copy(refreshing = false, error = null) } }
+                .onFailure { e ->
+                    val reason = e.message ?: "sync failed"
+                    sync.update { it.copy(refreshing = false, message = "Showing saved data - $reason", error = reason) }
+                }
         }
     }
 
@@ -119,5 +125,5 @@ class DashboardViewModel @Inject constructor(
     fun showMoreDays() = controls.update { it.copy(daysShown = it.daysShown + DashboardControls.PAGE_DAYS) }
     fun clearFilters() { controls.value = DashboardControls() }
     fun retryFailed() { viewModelScope.launch { repository.retryFailed() } }
-    fun messageShown() { message.value = null }
+    fun messageShown() = sync.update { it.copy(message = null) }
 }

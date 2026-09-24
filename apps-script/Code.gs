@@ -1,5 +1,5 @@
 /**
- * EHS Daily TBT Tracker — Google Apps Script Web App backend.
+ * EHS Daily TBT Tracker — Google Apps Script Web App backend.  (v3: auto-detects the data tab, reads Master Contractors tab)
  *
  * Sheet: "Contractor Daily Tbt details"
  *   A Timestamp | B Date | C Name contractor | D Nos of Manpower | E Location of TBT

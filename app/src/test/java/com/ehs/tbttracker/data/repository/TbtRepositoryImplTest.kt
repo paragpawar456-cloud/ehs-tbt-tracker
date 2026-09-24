@@ -45,7 +45,8 @@ class TbtRepositoryImplTest {
 
     @Test
     fun `observeRecords canonicalises contractor names across the whole set`() = runTest(dispatcher) {
-        every { dao.observeAll() } returns flowOf(listOf(pending("1").copy(contractorName = "Alu-wind"), pending("2").copy(contractorName = "Alu-wind infratech")))
+        // The most frequent spelling wins (ties go to the shorter one), as in the real sheet.
+        every { dao.observeAll() } returns flowOf(listOf(pending("1").copy(contractorName = "Alu-wind"), pending("2").copy(contractorName = "Alu-wind infratech"), pending("3").copy(contractorName = "Alu-wind infratech ")))
         repo.observeRecords().test {
             val list = awaitItem()
             assertThat(list.map { it.contractor }.distinct()).containsExactly("Alu-wind Infratech")

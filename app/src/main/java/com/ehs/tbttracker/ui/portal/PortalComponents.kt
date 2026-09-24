@@ -174,8 +174,8 @@ fun KpiCard(
         Row(verticalAlignment = Alignment.Bottom) {
             Text(value, color = valueColor, fontSize = 32.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 34.sp)
             Spacer(Modifier.width(6.dp))
-            Text(unit, color = if (valueColor == c.ink) c.muted else valueColor, fontSize = 13.sp, modifier = Modifier.padding(bottom = 4.dp),
-                maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(unit, color = if (valueColor == c.ink) c.muted else valueColor, fontSize = 13.sp, lineHeight = 15.sp,
+                modifier = Modifier.padding(bottom = 4.dp), maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
         footer()
     }

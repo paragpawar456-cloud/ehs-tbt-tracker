@@ -81,4 +81,12 @@ class PortalChartsScreenshotTest {
             Frame(dark = false) { DateWiseCharts(s) {} }
         }
     }
+
+    @Test
+    fun contractorWiseChartsDark() {
+        val s = state("Credible Construction Company")
+        captureRoboImage("build/screenshots/contractor_wise_dark.png") {
+            Frame(dark = true) { ContractorKpis(s); ContractorCharts(s) }
+        }
+    }
 }

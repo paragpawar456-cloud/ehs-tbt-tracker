@@ -213,7 +213,7 @@ fun DonutChart(
                     ) {
                         Box(Modifier.size(10.dp).background(s.color, RoundedCornerShape(3.dp)))
                         Spacer(Modifier.width(8.dp))
-                        Text(s.label, color = c.ink, fontSize = 12.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                        Text(s.label, color = c.ink, fontSize = 12.sp, lineHeight = 14.sp, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
                         Spacer(Modifier.width(6.dp))
                         Text("${s.value}", color = c.ink, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Text("  ${pct(s.value, total)}", color = c.muted, fontSize = 11.sp)
@@ -310,7 +310,9 @@ fun ColumnChart(
                 }
                 drawPath(path, if (dim) base.copy(alpha = 0.35f) else base)
             }
-            if (i % labelEvery == 0 || i == selected || col.emphasized) {
+            // Regular ticks yield to a nearby emphasised/selected label so labels never collide.
+            val nearFocus = columns.indices.any { j -> j != i && kotlin.math.abs(j - i) <= labelEvery / 2 + 1 && (columns[j].emphasized || j == selected) }
+            if ((i % labelEvery == 0 && !nearFocus) || i == selected || col.emphasized) {
                 val t = measurer.measure(col.label, if (col.emphasized) labelStyle else axisStyle)
                 drawText(t, topLeft = Offset(x + barW / 2f - t.size.width / 2f, bottom + 3.dp.toPx()))
             }

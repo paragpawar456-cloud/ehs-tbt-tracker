@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -195,32 +197,47 @@ internal fun ContractorKpis(state: PortalUiState) {
     val r = state.report ?: return
     val c = Portal.colors
     val monthName = r.month.format(Portal.monthShort).uppercase()
+    // Explicit 2x2 (4 across on tablets) with equal heights per row.
+    val cards: List<@Composable (Modifier) -> Unit> = listOf(
+        { m ->
+            KpiCard("TBT done in $monthName", Icons.Filled.CheckCircle, c.green, c.greenSoft, "${r.doneDays.size}",
+            "Days (${r.sessions} Sessions)", c.green, m.testTag("kpi_done")) {
+            Text("✓ Conducted by ${r.contractor}", color = c.green, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 2)
+        }
+        },
+        { m ->
+            KpiCard("Days not done TBT", Icons.Filled.HighlightOff, c.red, c.redSoft, "${r.notDoneDays.size}",
+            "of ${r.daysInMonth} Days", c.red, m.testTag("kpi_not_done")) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(Icons.Filled.ErrorOutline, null, tint = c.red, modifier = Modifier.size(15.dp)); Spacer(Modifier.width(4.dp))
+                Text("Marked as \"No TBT Done\"", color = c.red, fontSize = 13.sp)
+            }
+        }
+        },
+        { m ->
+            KpiCard("Monthly compliance rate", Icons.Filled.TrendingUp, c.indigo, c.indigoSoft, "${r.complianceRate}%",
+            "Active Rate", c.indigo, m.testTag("kpi_rate")) {
+            LinearProgressIndicator(
+                progress = { r.complianceRate / 100f },
+                modifier = Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(4.dp)),
+                color = c.indigo, trackColor = c.track, drawStopIndicator = {},
+            )
+        }
+        },
+        { m ->
+            KpiCard("Total manpower trained", Icons.Filled.Groups, c.amber, c.amberSoft, "${r.manpower}",
+            "Workers", c.ink, m.testTag("kpi_manpower")) {
+            Text("Avg %.1f workers per conducted day".format(Locale.US, r.avgWorkersPerDay), color = c.muted, fontSize = 13.sp)
+        }
+        },
+    )
     BoxWithConstraints {
         val perRow = if (maxWidth > 700.dp) 4 else 2
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp), maxItemsInEachRow = perRow) {
-            val m = Modifier.weight(1f)
-            KpiCard("TBT done in $monthName", Icons.Filled.CheckCircle, c.green, c.greenSoft, "${r.doneDays.size}",
-                "Days (${r.sessions} Sessions)", c.green, m.testTag("kpi_done")) {
-                Text("✓ Conducted by ${r.contractor}", color = c.green, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, maxLines = 2)
-            }
-            KpiCard("Days not done TBT", Icons.Filled.HighlightOff, c.red, c.redSoft, "${r.notDoneDays.size}",
-                "of ${r.daysInMonth} Days", c.red, m.testTag("kpi_not_done")) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.ErrorOutline, null, tint = c.red, modifier = Modifier.size(15.dp)); Spacer(Modifier.width(4.dp))
-                    Text("Marked as \"No TBT Done\"", color = c.red, fontSize = 13.sp)
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            cards.chunked(perRow).forEach { row ->
+                Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    row.forEach { card -> card(Modifier.weight(1f).fillMaxHeight()) }
                 }
-            }
-            KpiCard("Monthly compliance rate", Icons.Filled.TrendingUp, c.indigo, c.indigoSoft, "${r.complianceRate}%",
-                "Active Rate", c.indigo, m.testTag("kpi_rate")) {
-                LinearProgressIndicator(
-                    progress = { r.complianceRate / 100f },
-                    modifier = Modifier.fillMaxWidth().height(7.dp).clip(RoundedCornerShape(4.dp)),
-                    color = c.indigo, trackColor = c.track, drawStopIndicator = {},
-                )
-            }
-            KpiCard("Total manpower trained", Icons.Filled.Groups, c.amber, c.amberSoft, "${r.manpower}",
-                "Workers", c.ink, m.testTag("kpi_manpower")) {
-                Text("Avg %.1f workers per conducted day".format(Locale.US, r.avgWorkersPerDay), color = c.muted, fontSize = 13.sp)
             }
         }
     }

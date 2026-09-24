@@ -1,0 +1,7 @@
+<resources>
+    <!-- Window-level theme only; all in-app styling is Material 3 Compose (ui/theme). -->
+    <style name="Theme.EHSTbt" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#0B1F3A</item>
+        <item name="android:windowBackground">#F8FAFC</item>
+    </style>
+</resources>
